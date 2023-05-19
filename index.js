@@ -60,7 +60,7 @@ const QnAConfiguration = {
     knowledgeBaseId: process.env.QnAKnowledgebaseId,
     endpointKey: process.env.QnAAuthKey,
     host: process.env.QnAEndpointHostName
-};
+}
 
 const LuisConfiguration = {
     applicationId: process.env.LuisAppId,

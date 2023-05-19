@@ -3,7 +3,7 @@
 
 const { ActivityHandler, MessageFactory } = require('botbuilder');
 
-const { QnAMaker } = require('botbuilder-ai');
+const { CustomQuestionAnswering } = require('botbuilder-ai');
 const DentistScheduler = require('./dentistscheduler');
 const IntentRecognizer = require("./intentrecognizer")
 
@@ -14,7 +14,7 @@ class DentaBot extends ActivityHandler {
 
         try {
 
-            this.qnaMaker = new QnAMaker(configuration.QnAConfiguration);
+            this.qnaMaker = new CustomQuestionAnswering(configuration.QnAConfiguration);
             this.intentRecognizer = new IntentRecognizer(configuration.LuisConfiguration);
             this.dentistScheduler = new DentistScheduler(configuration.SchedulerConfiguration)
 
@@ -26,16 +26,19 @@ class DentaBot extends ActivityHandler {
 
             const LuisResult = await this.intentRecognizer.executeLuisQuery(context);
             
-            //console.log(LuisResult);
+            console.log(LuisResult);
 
             if (LuisResult.luisResult.prediction.topIntent === "GetAvailability" &&
-                LuisResult.intents.GetAvailability.score > .6 &&
-                LuisResult.entities.$instance && 
-                LuisResult.entities.$instance.Date && 
-                LuisResult.entities.$instance.Date[0]
-            ) {
-                const date = LuisResult.entities.$instance.Date[0].text;
+                LuisResult.intents.GetAvailability.score > .7) {
+                
+                var date = "today";
 
+                if (LuisResult.entities.$instance && 
+                    LuisResult.entities.$instance.Date && 
+                    LuisResult.entities.$instance.Date[0]) 
+                {
+                    date = LuisResult.entities.$instance.Date[0].text;
+                }
                 const availableSlots = await this.dentistScheduler.getAvailability();
 
                 const responseMessage = availableSlots + " for " + date;
@@ -46,7 +49,7 @@ class DentaBot extends ActivityHandler {
                 return;
             }
             else if (LuisResult.luisResult.prediction.topIntent === "ScheduleAppointment" &&
-                LuisResult.intents.ScheduleAppointment.score > .6 &&
+                LuisResult.intents.ScheduleAppointment.score > .7 &&
                 LuisResult.entities.$instance && 
                 LuisResult.entities.$instance.Time && 
                 LuisResult.entities.$instance.Time[0]
@@ -61,11 +64,12 @@ class DentaBot extends ActivityHandler {
                 return;
             }
             else {
-
+                
                 const qnaResults = await this.qnaMaker.getAnswers(context);
 
+                console.log(qnaResults);
+
                 if (qnaResults[0]) {
-                    console.log(qnaResults[0])
                     await context.sendActivity(`${qnaResults[0].answer}`);
                 }
                 else {
