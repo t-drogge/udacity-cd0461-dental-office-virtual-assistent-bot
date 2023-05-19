@@ -29,7 +29,7 @@ class DentaBot extends ActivityHandler {
             console.log(LuisResult);
 
             if (LuisResult.luisResult.prediction.topIntent === "GetAvailability" &&
-                LuisResult.intents.GetAvailability.score > .7) {
+                LuisResult.intents.GetAvailability.score > .8) {
                 
                 var date = "today";
 
@@ -49,7 +49,7 @@ class DentaBot extends ActivityHandler {
                 return;
             }
             else if (LuisResult.luisResult.prediction.topIntent === "ScheduleAppointment" &&
-                LuisResult.intents.ScheduleAppointment.score > .7 &&
+                LuisResult.intents.ScheduleAppointment.score > .8 &&
                 LuisResult.entities.$instance && 
                 LuisResult.entities.$instance.Time && 
                 LuisResult.entities.$instance.Time[0]
